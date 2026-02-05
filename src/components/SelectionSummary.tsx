@@ -44,8 +44,12 @@ export function SelectionSummary({
   }
 
   const totalWeight = selectedOrders.reduce((sum, o) => sum + o.weight, 0);
-  const allWarnings = Array.from(compatibilityMap.values())
-    .flatMap(c => c.warnings)
+  
+  // Only show warnings for orders that are actually selected (not just in compatibility map)
+  const selectedOrderIds = new Set(selectedOrders.map(o => o.id));
+  const allWarnings = Array.from(compatibilityMap.entries())
+    .filter(([orderId]) => selectedOrderIds.has(orderId)) // Only selected orders
+    .flatMap(([, c]) => c.warnings)
     .filter((w, i, arr) => arr.indexOf(w) === i);
 
   const allMaterialTypes = [...new Set(

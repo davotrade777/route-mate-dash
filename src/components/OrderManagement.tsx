@@ -5,6 +5,7 @@ import { mockOrders } from '@/data/mockOrders';
 import { calculateCompatibility } from '@/utils/compatibilityCalculator';
 import { OrdersTable } from './OrdersTable';
 import { SelectionSummary } from './SelectionSummary';
+import { AutoGroupingSuggestions } from './AutoGroupingSuggestions';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Truck, ArrowUpDown, Package, Sparkles } from 'lucide-react';
@@ -75,6 +76,15 @@ export function OrderManagement() {
     });
     handleClearSelection();
   }, [orders, selectedOrders, handleClearSelection]);
+
+  const handleSelectGroup = useCallback((orderIds: string[]) => {
+    const newSet = new Set(orderIds);
+    setSelectedOrders(newSet);
+    setPrimarySelection(orderIds[0] || null);
+    toast.success(`Grupo seleccionado con ${orderIds.length} pedidos`, {
+      icon: <Sparkles className="h-4 w-4" />,
+    });
+  }, []);
 
   const handleSortToggle = (checked: boolean) => {
     setSortByCompatibility(checked);
@@ -165,6 +175,15 @@ export function OrderManagement() {
 
       {/* Main content */}
       <main className="container py-6">
+        {/* Auto grouping suggestions */}
+        <AnimatePresence>
+          <AutoGroupingSuggestions 
+            orders={orders}
+            onSelectGroup={handleSelectGroup}
+            hasSelection={selectedOrders.size > 0}
+          />
+        </AnimatePresence>
+
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
           {/* Orders table */}
           <div className="xl:col-span-2">

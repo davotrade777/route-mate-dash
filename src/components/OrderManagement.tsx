@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Order, CompatibilityResult } from '@/types/order';
 import { mockOrders } from '@/data/mockOrders';
@@ -13,6 +14,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 export function OrderManagement() {
+  const navigate = useNavigate();
   const [orders] = useState<Order[]>(mockOrders);
   const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
   const [primarySelection, setPrimarySelection] = useState<string | null>(null);
@@ -72,10 +74,15 @@ export function OrderManagement() {
   const handleConfirmGrouping = useCallback(() => {
     const selectedOrdersList = orders.filter(o => selectedOrders.has(o.id));
     toast.success(`Agrupación confirmada con ${selectedOrdersList.length} pedidos`, {
-      description: `IDs: ${selectedOrdersList.map(o => o.id).join(', ')}`,
+      description: 'Redirigiendo a asignación de camión...',
+      icon: <Truck className="h-4 w-4" />,
     });
-    handleClearSelection();
-  }, [orders, selectedOrders, handleClearSelection]);
+    
+    // Navigate to truck assignment with the grouped orders
+    navigate('/truck-assignment', { 
+      state: { groupedOrders: selectedOrdersList } 
+    });
+  }, [orders, selectedOrders, navigate]);
 
   const handleSelectGroup = useCallback((orderIds: string[]) => {
     const newSet = new Set(orderIds);

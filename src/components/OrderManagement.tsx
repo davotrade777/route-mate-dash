@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Order, CompatibilityResult } from '@/types/order';
 import { mockOrders } from '@/data/mockOrders';
 import { calculateCompatibility } from '@/utils/compatibilityCalculator';
@@ -6,8 +7,9 @@ import { OrdersTable } from './OrdersTable';
 import { SelectionSummary } from './SelectionSummary';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Truck, ArrowUpDown, Package } from 'lucide-react';
+import { Truck, ArrowUpDown, Package, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 export function OrderManagement() {
   const [orders] = useState<Order[]>(mockOrders);
@@ -74,6 +76,16 @@ export function OrderManagement() {
     handleClearSelection();
   }, [orders, selectedOrders, handleClearSelection]);
 
+  const handleSortToggle = (checked: boolean) => {
+    setSortByCompatibility(checked);
+    if (checked && primarySelection) {
+      toast.info('Ordenando por compatibilidad', {
+        description: 'Los pedidos más compatibles aparecen primero',
+        icon: <Sparkles className="h-4 w-4" />,
+      });
+    }
+  };
+
   const selectedOrdersList = orders.filter(o => selectedOrders.has(o.id));
   const primaryOrder = orders.find(o => o.id === primarySelection) || null;
 
@@ -96,21 +108,57 @@ export function OrderManagement() {
             </div>
             
             {/* Sort toggle */}
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-              <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
+            <motion.div 
+              className={cn(
+                'flex items-center gap-3 p-3 rounded-xl border transition-all duration-300',
+                sortByCompatibility 
+                  ? 'bg-primary/10 border-primary/30 shadow-lg shadow-primary/10' 
+                  : 'bg-muted/50 border-transparent'
+              )}
+              animate={{
+                scale: sortByCompatibility ? 1.02 : 1,
+              }}
+              transition={{ type: 'spring', stiffness: 400 }}
+            >
+              <AnimatePresence mode="wait">
+                {sortByCompatibility ? (
+                  <motion.div
+                    key="sparkles"
+                    initial={{ rotate: -180, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: 180, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Sparkles className="h-4 w-4 text-primary" />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="arrows"
+                    initial={{ rotate: 180, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: -180, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
               <Label 
                 htmlFor="sort-switch" 
-                className="text-sm cursor-pointer select-none"
+                className={cn(
+                  'text-sm cursor-pointer select-none transition-colors',
+                  sortByCompatibility ? 'text-primary font-medium' : ''
+                )}
               >
                 Ordenar por compatibilidad
               </Label>
               <Switch
                 id="sort-switch"
                 checked={sortByCompatibility}
-                onCheckedChange={setSortByCompatibility}
+                onCheckedChange={handleSortToggle}
                 disabled={!primarySelection}
               />
-            </div>
+            </motion.div>
           </div>
         </div>
       </header>
@@ -128,11 +176,18 @@ export function OrderManagement() {
                   ({orders.length} pedidos)
                 </span>
               </div>
-              {primarySelection && (
-                <p className="text-sm text-muted-foreground animate-fade-in">
-                  Selecciona pedidos compatibles para agrupar
-                </p>
-              )}
+              <AnimatePresence>
+                {primarySelection && (
+                  <motion.p 
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    className="text-sm text-muted-foreground"
+                  >
+                    Selecciona pedidos compatibles para agrupar
+                  </motion.p>
+                )}
+              </AnimatePresence>
             </div>
             
             <OrdersTable

@@ -48,10 +48,10 @@ export function TruckCard({ truck, compatibility, isSelected, onSelect, totalWei
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      whileHover={{ y: -2 }}
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 20 }}
+      whileHover={{ x: 4 }}
       className={cn(
         'relative rounded-xl border-2 bg-card p-4 transition-all duration-200',
         isSelected
@@ -62,39 +62,154 @@ export function TruckCard({ truck, compatibility, isSelected, onSelect, totalWei
         truck.status === 'maintenance' && 'opacity-60'
       )}
     >
-      {/* Recommended badge */}
+      {/* Badges */}
       {compatibility.isRecommended && (
-        <Badge className="absolute -top-2 -right-2 bg-match-compatible text-white shadow-md">
+        <Badge className="absolute -top-2 left-4 bg-match-compatible text-white shadow-md">
           Recomendado
         </Badge>
       )}
-
-      {/* Maintenance badge */}
       {truck.status === 'maintenance' && (
-        <Badge variant="destructive" className="absolute -top-2 -right-2 shadow-md">
+        <Badge variant="destructive" className="absolute -top-2 left-4 shadow-md">
           En mantenimiento
         </Badge>
       )}
 
-      <div className="space-y-4">
-        {/* Header */}
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className={cn(
-              'p-2 rounded-lg',
-              compatibility.isRecommended ? 'bg-match-compatible/10' : 'bg-muted'
-            )}>
-              <TruckIcon className={cn(
-                'h-5 w-5',
-                compatibility.isRecommended ? 'text-match-compatible' : 'text-muted-foreground'
-              )} />
-            </div>
-            <div>
-              <h3 className="font-semibold">{truck.id}</h3>
-              <p className="text-sm text-muted-foreground">{truck.brand} {truck.model}</p>
-            </div>
+      <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+        {/* Left: Truck info */}
+        <div className="flex items-center gap-4 lg:min-w-[200px]">
+          <div className={cn(
+            'p-3 rounded-lg flex-shrink-0',
+            compatibility.isRecommended ? 'bg-match-compatible/10' : 'bg-muted'
+          )}>
+            <TruckIcon className={cn(
+              'h-6 w-6',
+              compatibility.isRecommended ? 'text-match-compatible' : 'text-muted-foreground'
+            )} />
+          </div>
+          <div className="min-w-0">
+            <h3 className="font-semibold text-lg">{truck.id}</h3>
+            <p className="text-sm text-muted-foreground truncate">{truck.brand} {truck.model}</p>
+          </div>
+        </div>
+
+        {/* Center: Key info in a row */}
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 lg:flex-1 text-sm">
+          {/* Location */}
+          <div className="flex items-center gap-1.5">
+            <MapPin className={cn(
+              'h-4 w-4 flex-shrink-0',
+              compatibility.locationMatch ? 'text-match-compatible' : 'text-muted-foreground'
+            )} />
+            <span className="truncate max-w-[120px]">{truck.currentLocation}</span>
+            {compatibility.locationMatch && (
+              <CheckCircle2 className="h-3 w-3 text-match-compatible flex-shrink-0" />
+            )}
           </div>
 
+          {/* Date */}
+          <div className="flex items-center gap-1.5">
+            <Calendar className={cn(
+              'h-4 w-4 flex-shrink-0',
+              compatibility.dateAvailable ? 'text-match-compatible' : 'text-match-warning'
+            )} />
+            <span>{format(truck.availableDate, 'd MMM', { locale: es })}</span>
+            {compatibility.dateAvailable ? (
+              <CheckCircle2 className="h-3 w-3 text-match-compatible flex-shrink-0" />
+            ) : (
+              <AlertTriangle className="h-3 w-3 text-match-warning flex-shrink-0" />
+            )}
+          </div>
+
+          {/* Driver */}
+          <div className="flex items-center gap-1.5">
+            <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            <span className="truncate max-w-[100px]">{truck.driver}</span>
+          </div>
+
+          {/* Fuel */}
+          <div className="flex items-center gap-1.5">
+            <Fuel className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            <span>{getFuelIcon(truck.fuelType)}</span>
+          </div>
+
+          {/* Weight capacity inline */}
+          <div className="flex items-center gap-2">
+            <Weight className={cn(
+              'h-4 w-4 flex-shrink-0',
+              compatibility.weightCompatible ? 'text-match-compatible' : 'text-match-incompatible'
+            )} />
+            <div className="flex items-center gap-2">
+              <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${Math.min(compatibility.weightPercentage, 100)}%` }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                  className={cn(
+                    'h-full rounded-full',
+                    getCapacityColor(compatibility.weightPercentage, compatibility.weightCompatible)
+                  )}
+                />
+              </div>
+              <span className={cn(
+                'text-xs font-medium whitespace-nowrap',
+                !compatibility.weightCompatible && 'text-match-incompatible'
+              )}>
+                {totalWeight.toLocaleString()}/{truck.maxWeight.toLocaleString()} kg
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Materials */}
+        <div className="flex items-center gap-2 lg:min-w-[180px]">
+          <div className="flex flex-wrap gap-1">
+            {truck.allowedMaterials.slice(0, 3).map(type => (
+              <MaterialTypeTag key={type} type={type} />
+            ))}
+            {truck.allowedMaterials.length > 3 && (
+              <span className="text-xs text-muted-foreground">+{truck.allowedMaterials.length - 3}</span>
+            )}
+          </div>
+          {!compatibility.materialCompatible && (
+            <Tooltip>
+              <TooltipTrigger>
+                <AlertTriangle className="h-4 w-4 text-match-incompatible flex-shrink-0" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <ul className="text-xs">
+                  {compatibility.materialWarnings.map((w, i) => (
+                    <li key={i}>{w}</li>
+                  ))}
+                </ul>
+              </TooltipContent>
+            </Tooltip>
+          )}
+        </div>
+
+        {/* Warnings (collapsed) */}
+        {compatibility.warnings.length > 0 && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center gap-1 px-2 py-1 bg-match-warning/10 border border-match-warning/20 rounded-lg cursor-help">
+                <AlertTriangle className="h-4 w-4 text-match-warning" />
+                <span className="text-xs text-match-warning font-medium">{compatibility.warnings.length}</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="left" className="max-w-xs">
+              <ul className="text-xs space-y-1">
+                {compatibility.warnings.map((warning, i) => (
+                  <li key={i} className="flex items-start gap-1.5">
+                    <AlertTriangle className="h-3 w-3 flex-shrink-0 mt-0.5" />
+                    {warning}
+                  </li>
+                ))}
+              </ul>
+            </TooltipContent>
+          </Tooltip>
+        )}
+
+        {/* Right: Score + Action */}
+        <div className="flex items-center gap-3 lg:ml-auto">
           {/* Score indicator */}
           <div className={cn(
             'flex items-center gap-2 px-3 py-1.5 rounded-full border',
@@ -111,140 +226,21 @@ export function TruckCard({ truck, compatibility, isSelected, onSelect, totalWei
               {compatibility.overallScore}%
             </span>
           </div>
-        </div>
 
-        {/* Info grid */}
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          {/* Location */}
-          <div className="flex items-center gap-2">
-            <MapPin className={cn(
-              'h-4 w-4',
-              compatibility.locationMatch ? 'text-match-compatible' : 'text-muted-foreground'
-            )} />
-            <span className="truncate">{truck.currentLocation}</span>
-            {compatibility.locationMatch && (
-              <CheckCircle2 className="h-3 w-3 text-match-compatible flex-shrink-0" />
+          {/* Action button */}
+          <Button
+            onClick={() => onSelect(truck.id)}
+            variant={isSelected ? 'default' : 'outline'}
+            size="sm"
+            className={cn(
+              'min-w-[140px]',
+              isSelected && 'bg-primary'
             )}
-          </div>
-
-          {/* Date */}
-          <div className="flex items-center gap-2">
-            <Calendar className={cn(
-              'h-4 w-4',
-              compatibility.dateAvailable ? 'text-match-compatible' : 'text-match-warning'
-            )} />
-            <span>{format(truck.availableDate, 'd MMM', { locale: es })}</span>
-            {compatibility.dateAvailable ? (
-              <CheckCircle2 className="h-3 w-3 text-match-compatible flex-shrink-0" />
-            ) : (
-              <AlertTriangle className="h-3 w-3 text-match-warning flex-shrink-0" />
-            )}
-          </div>
-
-          {/* Driver */}
-          <div className="flex items-center gap-2">
-            <User className="h-4 w-4 text-muted-foreground" />
-            <span className="truncate">{truck.driver}</span>
-          </div>
-
-          {/* Fuel type */}
-          <div className="flex items-center gap-2">
-            <Fuel className="h-4 w-4 text-muted-foreground" />
-            <span className="capitalize">{truck.fuelType} {getFuelIcon(truck.fuelType)}</span>
-          </div>
+            disabled={truck.status === 'maintenance'}
+          >
+            {isSelected ? 'Seleccionado ✓' : 'Seleccionar'}
+          </Button>
         </div>
-
-        {/* Weight capacity */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center gap-2">
-              <Weight className={cn(
-                'h-4 w-4',
-                compatibility.weightCompatible ? 'text-match-compatible' : 'text-match-incompatible'
-              )} />
-              <span>Capacidad</span>
-            </div>
-            <span className={cn(
-              'font-medium',
-              !compatibility.weightCompatible && 'text-match-incompatible'
-            )}>
-              {totalWeight.toLocaleString()} / {truck.maxWeight.toLocaleString()} kg
-            </span>
-          </div>
-          <div className="h-2 bg-muted rounded-full overflow-hidden">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${Math.min(compatibility.weightPercentage, 100)}%` }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className={cn(
-                'h-full rounded-full',
-                getCapacityColor(compatibility.weightPercentage, compatibility.weightCompatible)
-              )}
-            />
-          </div>
-        </div>
-
-        {/* Allowed materials */}
-        <div className="space-y-2">
-          <p className="text-sm text-muted-foreground flex items-center gap-1">
-            Materiales permitidos
-            {compatibility.materialCompatible ? (
-              <CheckCircle2 className="h-3 w-3 text-match-compatible" />
-            ) : (
-              <Tooltip>
-                <TooltipTrigger>
-                  <AlertTriangle className="h-3 w-3 text-match-incompatible" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <ul className="text-xs">
-                    {compatibility.materialWarnings.map((w, i) => (
-                      <li key={i}>{w}</li>
-                    ))}
-                  </ul>
-                </TooltipContent>
-              </Tooltip>
-            )}
-          </p>
-          <div className="flex flex-wrap gap-1.5">
-            {truck.allowedMaterials.map(type => (
-              <MaterialTypeTag key={type} type={type} />
-            ))}
-          </div>
-        </div>
-
-        {/* Warnings */}
-        {compatibility.warnings.length > 0 && (
-          <div className="bg-match-warning/10 border border-match-warning/20 rounded-lg p-2.5">
-            <ul className="text-xs text-match-warning space-y-0.5">
-              {compatibility.warnings.slice(0, 3).map((warning, i) => (
-                <li key={i} className="flex items-center gap-1.5">
-                  <AlertTriangle className="h-3 w-3 flex-shrink-0" />
-                  {warning}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {/* Action button */}
-        <Button
-          onClick={() => onSelect(truck.id)}
-          variant={isSelected ? 'default' : 'outline'}
-          className={cn(
-            'w-full',
-            isSelected && 'bg-primary'
-          )}
-          disabled={truck.status === 'maintenance'}
-        >
-          {isSelected ? 'Camión seleccionado' : 'Seleccionar camión'}
-        </Button>
-
-        {/* User control note */}
-        {!compatibility.isRecommended && truck.status !== 'maintenance' && (
-          <p className="text-xs text-center text-muted-foreground italic">
-            Puedes seleccionar este camión bajo tu criterio
-          </p>
-        )}
       </div>
     </motion.div>
   );

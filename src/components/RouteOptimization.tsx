@@ -24,7 +24,7 @@ interface RouteOptimizationProps {
   groupedOrders: Order[];
   truck: TruckType;
   onBack: () => void;
-  onConfirm: (orderedOrders: Order[]) => void;
+  onConfirm: (orderedOrders: Order[], routeDistance: number, routeTime: number, routeWarnings: RouteWarning[]) => void;
 }
 
 const CRITERIA_OPTIONS: { id: SortCriteria; label: string; icon: typeof Ruler; description: string }[] = [
@@ -97,7 +97,7 @@ export function RouteOptimization({ groupedOrders, truck, onBack, onConfirm }: R
       description: `${activeOrders.length} paradas · ${Math.round(metrics.totalDistance)} km · ${formatDuration(metrics.totalTime)}`,
       icon: <CheckCircle2 className="h-4 w-4" />,
     });
-    onConfirm(activeOrders);
+    onConfirm(activeOrders, metrics.totalDistance, metrics.totalTime, warnings);
   };
 
   return (

@@ -108,6 +108,8 @@ export function FreightSummary({
     return result;
   }, [currentTruck, orders, routeWarnings, totalWeight, allMaterials, earliestDate]);
 
+  const truckAlerts = alerts.filter(a => a.type === 'weight' || a.type === 'material' || a.type === 'date');
+  const routeAlerts = alerts.filter(a => a.type === 'route');
   const errorAlerts = alerts.filter(a => a.severity === 'error');
   const warningAlerts = alerts.filter(a => a.severity === 'warning');
   const infoAlerts = alerts.filter(a => a.severity === 'info');
@@ -205,27 +207,7 @@ export function FreightSummary({
       </header>
 
       <main className="container py-6">
-        {/* Alerts section - top priority */}
-        <AnimatePresence>
-          {alerts.length > 0 && status === 'review' && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="mb-6"
-            >
-              <h2 className="font-semibold mb-3 flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-warning" />
-                Alertas del flete ({alerts.length})
-              </h2>
-              <div className="space-y-2">
-                {[...errorAlerts, ...warningAlerts, ...infoAlerts].map((alert) => (
-                  <AlertCard key={alert.id} alert={alert} onAction={() => handleAlertAction(alert)} />
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Alerts are now embedded in their respective cards below */}
 
         {/* Rejected state - reassign prompt */}
         <AnimatePresence>
@@ -309,6 +291,14 @@ export function FreightSummary({
                     </div>
                   </div>
                 </div>
+                {/* Truck alerts inline */}
+                {truckAlerts.length > 0 && status === 'review' && (
+                  <div className="mt-3 pt-3 border-t space-y-2">
+                    {truckAlerts.map((alert) => (
+                      <AlertCard key={alert.id} alert={alert} onAction={() => handleAlertAction(alert)} />
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -364,6 +354,14 @@ export function FreightSummary({
                     </div>
                   ))}
                 </div>
+                {/* Route alerts inline */}
+                {routeAlerts.length > 0 && status === 'review' && (
+                  <div className="mt-4 pt-3 border-t space-y-2">
+                    {routeAlerts.map((alert) => (
+                      <AlertCard key={alert.id} alert={alert} onAction={() => handleAlertAction(alert)} />
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
 

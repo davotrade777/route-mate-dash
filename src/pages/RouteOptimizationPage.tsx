@@ -1,21 +1,21 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { TruckAssignment } from '@/components/TruckAssignment';
+import { RouteOptimization } from '@/components/RouteOptimization';
 import { Order } from '@/types/order';
-import { mockTrucks } from '@/data/mockTrucks';
+import { Truck } from '@/types/truck';
 import { toast } from 'sonner';
 
-export default function TruckAssignmentPage() {
+export default function RouteOptimizationPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const groupedOrders = (location.state?.groupedOrders as Order[]) || [];
+  const truck = location.state?.truck as Truck | undefined;
 
-  // If no orders, redirect back
-  if (groupedOrders.length === 0) {
+  if (groupedOrders.length === 0 || !truck) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
-          <p className="text-muted-foreground">No hay pedidos agrupados</p>
-          <button 
+          <p className="text-muted-foreground">No hay datos de ruta disponibles</p>
+          <button
             onClick={() => navigate('/')}
             className="text-primary hover:underline"
           >
@@ -27,25 +27,20 @@ export default function TruckAssignmentPage() {
   }
 
   const handleBack = () => {
-    navigate('/');
+    navigate('/truck-assignment', { state: { groupedOrders } });
   };
 
-  const handleConfirm = (truckId: string) => {
-    const truck = mockTrucks.find(t => t.id === truckId);
-    if (!truck) return;
-
-    toast.success('Camión asignado — configurando ruta...', {
-      description: `Redirigiendo a optimización de ruta`,
+  const handleConfirm = (orderedOrders: Order[]) => {
+    toast.success('Ruta confirmada y asignada', {
+      description: `${orderedOrders.length} entregas programadas para ${truck.id}`,
     });
-
-    navigate('/route-optimization', {
-      state: { groupedOrders, truck },
-    });
+    setTimeout(() => navigate('/'), 1500);
   };
 
   return (
-    <TruckAssignment
+    <RouteOptimization
       groupedOrders={groupedOrders}
+      truck={truck}
       onBack={handleBack}
       onConfirm={handleConfirm}
     />

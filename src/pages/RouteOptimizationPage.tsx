@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { RouteOptimization } from '@/components/RouteOptimization';
 import { Order } from '@/types/order';
 import { Truck } from '@/types/truck';
-import { toast } from 'sonner';
+import { RouteWarning } from '@/utils/routeOptimizer';
 
 export default function RouteOptimizationPage() {
   const location = useLocation();
@@ -30,11 +30,17 @@ export default function RouteOptimizationPage() {
     navigate('/truck-assignment', { state: { groupedOrders } });
   };
 
-  const handleConfirm = (orderedOrders: Order[]) => {
-    toast.success('Ruta confirmada y asignada', {
-      description: `${orderedOrders.length} entregas programadas para ${truck.id}`,
+  const handleConfirm = (orderedOrders: Order[], routeDistance: number, routeTime: number, routeWarnings: RouteWarning[]) => {
+    navigate('/freight-summary', {
+      state: {
+        orders: groupedOrders,
+        truck,
+        orderedStops: orderedOrders,
+        routeDistance,
+        routeTime,
+        routeWarnings,
+      },
     });
-    setTimeout(() => navigate('/'), 1500);
   };
 
   return (

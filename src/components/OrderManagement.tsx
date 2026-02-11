@@ -107,7 +107,7 @@ export function OrderManagement() {
   const primaryOrder = orders.find(o => o.id === primarySelection) || null;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background">
       {/* Header */}
       <header className="border-b bg-card sticky top-0 z-10">
         <div className="container py-4">

@@ -1,169 +1,192 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Package, Truck, Route, FileText, ArrowRight, BarChart3, Clock, CheckCircle2 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import {
+  Package, Truck, Route, FileText, ArrowRight,
+  BarChart3, Clock, CheckCircle2, AlertTriangle,
+  Bell, TrendingUp, Zap,
+} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
-const steps = [
-  {
-    icon: Package,
-    title: 'Gestión de Pedidos',
-    description: 'Agrupa pedidos compatibles por destino, materiales y fechas de entrega.',
-    route: '/',
-    color: 'hsl(var(--primary))',
-    bgColor: 'bg-primary/10',
-    stats: { label: 'Pedidos pendientes', value: '15' },
-  },
-  {
-    icon: Truck,
-    title: 'Asignación de Camión',
-    description: 'Selecciona el camión más compatible según peso, materiales y disponibilidad.',
-    route: '/truck-assignment',
-    color: 'hsl(var(--success))',
-    bgColor: 'bg-[hsl(var(--success))]/10',
-    stats: { label: 'Camiones disponibles', value: '9' },
-  },
-  {
-    icon: Route,
-    title: 'Optimización de Ruta',
-    description: 'Reordena las paradas por distancia o tiempo con drag & drop inteligente.',
-    route: '/route-optimization',
-    color: 'hsl(var(--info))',
-    bgColor: 'bg-[hsl(var(--info))]/10',
-    stats: { label: 'Criterios', value: '3' },
-  },
-  {
-    icon: FileText,
-    title: 'Resumen del Flete',
-    description: 'Revisa alertas, confirma y envía el flete al transportista.',
-    route: '/freight-summary',
-    color: 'hsl(var(--warning))',
-    bgColor: 'bg-[hsl(var(--warning))]/10',
-    stats: { label: 'Fletes enviados', value: '0' },
-  },
+const kpis = [
+  { icon: Package, label: 'Pedidos pendientes', value: '15', trend: '+3 hoy', color: 'text-primary', bg: 'bg-primary/10' },
+  { icon: Truck, label: 'Camiones disponibles', value: '9', trend: '2 en ruta', color: 'text-[hsl(var(--success))]', bg: 'bg-[hsl(var(--success))]/10' },
+  { icon: CheckCircle2, label: 'Fletes completados', value: '4', trend: 'hoy', color: 'text-[hsl(var(--info))]', bg: 'bg-[hsl(var(--info))]/10' },
+  { icon: TrendingUp, label: 'Eficiencia promedio', value: '87%', trend: '+2% vs ayer', color: 'text-[hsl(var(--warning))]', bg: 'bg-[hsl(var(--warning))]/10' },
 ];
 
-const quickStats = [
-  { icon: BarChart3, label: 'Eficiencia promedio', value: '87%' },
-  { icon: Clock, label: 'Tiempo promedio de flete', value: '2.3h' },
-  { icon: CheckCircle2, label: 'Fletes completados hoy', value: '4' },
+const notifications = [
+  { id: 1, type: 'warning' as const, title: 'Flete FLT-003 rechazado', description: 'El transportista Carlos García rechazó el flete. Requiere reasignación.', time: 'Hace 15 min', actionLabel: 'Reasignar', actionRoute: '/assigned-freights' },
+  { id: 2, type: 'info' as const, title: 'Flete FLT-005 aceptado', description: 'María López aceptó el flete hacia Valencia Industrial.', time: 'Hace 1h', actionLabel: 'Ver detalle', actionRoute: '/assigned-freights' },
+  { id: 3, type: 'alert' as const, title: 'Alerta de peso excedido', description: 'El grupo PED-1003 + PED-1007 supera la capacidad del camión asignado.', time: 'Hace 2h', actionLabel: 'Corregir', actionRoute: '/orders' },
 ];
+
+const shortcuts = [
+  { icon: Package, label: 'Nuevo flete', description: 'Agrupa pedidos y comienza', route: '/orders' },
+  { icon: FileText, label: 'Fletes asignados', description: 'Ver estado de fletes', route: '/assigned-freights' },
+  { icon: Bell, label: 'Notificaciones', description: '3 pendientes', route: '/notifications' },
+];
+
+const notifIcon = {
+  warning: AlertTriangle,
+  info: CheckCircle2,
+  alert: AlertTriangle,
+};
+
+const notifColor = {
+  warning: 'text-[hsl(var(--warning))] bg-[hsl(var(--warning))]/10',
+  info: 'text-[hsl(var(--info))] bg-[hsl(var(--info))]/10',
+  alert: 'text-destructive bg-destructive/10',
+};
 
 export default function Home() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Hero */}
-      <header className="border-b bg-card">
-        <div className="container py-10">
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-          >
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2.5 rounded-xl bg-primary/10">
-                <Truck className="h-7 w-7 text-primary" />
-              </div>
-              <Badge variant="secondary" className="text-xs font-medium">
-                Panel de control
-              </Badge>
-            </div>
-            <h1 className="text-3xl font-bold tracking-tight mt-3">
-              RouteMate
-            </h1>
-            <p className="text-muted-foreground mt-1 max-w-lg">
-              Gestiona tus fletes de principio a fin: agrupa pedidos, asigna camiones, optimiza rutas y confirma entregas.
-            </p>
-          </motion.div>
+    <div className="p-6 space-y-8 max-w-6xl mx-auto">
+      {/* Title */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <h1 className="text-2xl font-bold tracking-tight">Panel de control</h1>
+        <p className="text-muted-foreground text-sm mt-1">
+          Resumen de operaciones y accesos rápidos
+        </p>
+      </motion.div>
 
-          {/* Quick stats */}
+      {/* KPIs */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {kpis.map((kpi, i) => (
           <motion.div
-            className="flex gap-6 mt-6"
+            key={kpi.label}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.07 }}
+          >
+            <Card className="h-full">
+              <CardContent className="p-5">
+                <div className="flex items-start justify-between">
+                  <div className={`p-2.5 rounded-xl ${kpi.bg}`}>
+                    <kpi.icon className={`h-5 w-5 ${kpi.color}`} />
+                  </div>
+                  <span className="text-xs text-muted-foreground">{kpi.trend}</span>
+                </div>
+                <div className="mt-4">
+                  <p className="text-3xl font-bold tracking-tight">{kpi.value}</p>
+                  <p className="text-sm text-muted-foreground mt-0.5">{kpi.label}</p>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Notifications */}
+        <div className="lg:col-span-2">
+          <Card>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Bell className="h-4 w-4 text-muted-foreground" />
+                  Notificaciones recientes
+                  <Badge variant="destructive" className="text-[10px] h-5 px-1.5">3</Badge>
+                </CardTitle>
+                <Button variant="ghost" size="sm" onClick={() => navigate('/notifications')}>
+                  Ver todas
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {notifications.map((notif, i) => {
+                const Icon = notifIcon[notif.type];
+                return (
+                  <motion.div
+                    key={notif.id}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 + i * 0.08 }}
+                    className="flex items-start gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors"
+                  >
+                    <div className={`p-1.5 rounded-lg ${notifColor[notif.type]} shrink-0 mt-0.5`}>
+                      <Icon className="h-3.5 w-3.5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium">{notif.title}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{notif.description}</p>
+                      <p className="text-[11px] text-muted-foreground mt-1">{notif.time}</p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="shrink-0 text-xs h-7"
+                      onClick={() => navigate(notif.actionRoute)}
+                    >
+                      {notif.actionLabel}
+                    </Button>
+                  </motion.div>
+                );
+              })}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Quick shortcuts */}
+        <div>
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Zap className="h-4 w-4 text-muted-foreground" />
+                Accesos rápidos
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {shortcuts.map((shortcut, i) => (
+                <motion.div
+                  key={shortcut.label}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 + i * 0.08 }}
+                >
+                  <button
+                    className="w-full flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 hover:border-primary/30 transition-all text-left group"
+                    onClick={() => navigate(shortcut.route)}
+                  >
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <shortcut.icon className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium">{shortcut.label}</p>
+                      <p className="text-xs text-muted-foreground">{shortcut.description}</p>
+                    </div>
+                    <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </button>
+                </motion.div>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* CTA */}
+          <motion.div
+            className="mt-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: 0.5 }}
           >
-            {quickStats.map((stat) => (
-              <div key={stat.label} className="flex items-center gap-2 text-sm">
-                <stat.icon className="h-4 w-4 text-muted-foreground" />
-                <span className="text-muted-foreground">{stat.label}:</span>
-                <span className="font-semibold">{stat.value}</span>
-              </div>
-            ))}
+            <Button
+              className="w-full gap-2"
+              size="lg"
+              onClick={() => navigate('/orders')}
+            >
+              <Package className="h-4 w-4" />
+              Comenzar nuevo flete
+              <ArrowRight className="h-4 w-4" />
+            </Button>
           </motion.div>
         </div>
-      </header>
-
-      {/* Workflow steps */}
-      <main className="container py-8">
-        <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-5">
-          Flujo de trabajo
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {steps.map((step, i) => (
-            <motion.div
-              key={step.title}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 * i, duration: 0.35 }}
-            >
-              <Card
-                className="group cursor-pointer hover:shadow-md transition-all duration-200 hover:border-primary/30 h-full"
-                onClick={() => navigate(step.route === '/' ? '/orders' : step.route)}
-              >
-                <CardContent className="p-5 flex gap-4">
-                  {/* Step number + icon */}
-                  <div className="flex flex-col items-center gap-1.5">
-                    <span className="text-xs font-bold text-muted-foreground">
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
-                    <div className={`p-2.5 rounded-lg ${step.bgColor}`}>
-                      <step.icon className="h-5 w-5" style={{ color: step.color }} />
-                    </div>
-                  </div>
-
-                  {/* Content */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between">
-                      <h3 className="font-semibold text-base">{step.title}</h3>
-                      <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity mt-0.5" />
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
-                      {step.description}
-                    </p>
-                    <div className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <span className="font-medium text-foreground">{step.stats.value}</span>
-                      <span>{step.stats.label}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* CTA */}
-        <motion.div
-          className="mt-8 flex justify-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-        >
-          <Button
-            size="lg"
-            className="gap-2"
-            onClick={() => navigate('/orders')}
-          >
-            <Package className="h-4 w-4" />
-            Comenzar nuevo flete
-            <ArrowRight className="h-4 w-4" />
-          </Button>
-        </motion.div>
-      </main>
+      </div>
     </div>
   );
 }

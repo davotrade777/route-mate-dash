@@ -33,8 +33,8 @@ export function AppSidebar() {
           <div className="p-1.5 rounded-lg bg-sidebar-primary/20">
             <Truck className="h-5 w-5 text-sidebar-primary" />
           </div>
-          <span className="font-bold text-sm group-data-[collapsible=icon]:hidden">
-            RouteMate
+            <span className="font-bold text-sm group-data-[collapsible=icon]:hidden">
+            Adelca
           </span>
         </div>
       </SidebarHeader>

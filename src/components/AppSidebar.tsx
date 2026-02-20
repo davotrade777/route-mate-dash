@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Home, Package, FileCheck, Bell, LogOut, Truck, User } from 'lucide-react';
+import adelcaLogo from '@/assets/adelca-logo.png';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -23,12 +24,12 @@ export function AppSidebar() {
     <TooltipProvider delayDuration={200}>
       <aside className="flex flex-col h-screen w-14 border-r bg-sidebar sticky top-0 shrink-0 z-30">
         {/* Logo */}
-        <div className="flex items-center justify-center h-14 border-b border-sidebar-border">
+        <div className="flex items-center justify-center h-14 border-b border-sidebar-border px-2">
           <button
             onClick={() => navigate('/')}
             className="flex items-center justify-center"
           >
-            <span className="text-2xl font-black text-primary leading-none">a</span>
+            <img src={adelcaLogo} alt="Adelca" className="h-6 w-auto object-contain" />
           </button>
         </div>
 

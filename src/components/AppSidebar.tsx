@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, Package, FileCheck, Bell, LogOut, Truck, User } from 'lucide-react';
+import { Home, Package, FileCheck, Bell, LogOut, Truck, User, Settings } from 'lucide-react';
 import adelcaLogo from '@/assets/adelca-logo.png';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -10,6 +10,7 @@ const navItems = [
   { title: 'Gestión de Pedidos', url: '/orders', icon: Package },
   { title: 'Fletes Asignados', url: '/assigned-freights', icon: FileCheck },
   { title: 'Notificaciones', url: '/notifications', icon: Bell, badge: 3 },
+  { title: 'Configuración', url: '/settings', icon: Settings },
 ];
 
 const bottomItems = [

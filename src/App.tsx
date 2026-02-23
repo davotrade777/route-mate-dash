@@ -11,6 +11,7 @@ import RouteOptimizationPage from "./pages/RouteOptimizationPage";
 import FreightSummaryPage from "./pages/FreightSummaryPage";
 import AssignedFreightsPage from "./pages/AssignedFreightsPage";
 import NotificationsPage from "./pages/NotificationsPage";
+import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
             <Route path="/freight-summary" element={<FreightSummaryPage />} />
             <Route path="/assigned-freights" element={<AssignedFreightsPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

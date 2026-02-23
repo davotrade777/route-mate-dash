@@ -14,36 +14,36 @@ import { toast } from 'sonner';
 import { defaultRouteBalanceConfig, RouteBalanceConfig } from '@/types/routeBalanceConfig';
 import { cn } from '@/lib/utils';
 
-function InfoTip({ text }: { text: string }) {
+function InfoTip({ text }: {text: string;}) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
       </TooltipTrigger>
       <TooltipContent side="top" className="max-w-xs text-xs">{text}</TooltipContent>
-    </Tooltip>
-  );
+    </Tooltip>);
+
 }
 
 export default function SettingsPage() {
   const [config, setConfig] = useState<RouteBalanceConfig>(defaultRouteBalanceConfig);
   const [hasChanges, setHasChanges] = useState(false);
 
-  const update = <K extends keyof RouteBalanceConfig>(
-    section: K,
-    field: string,
-    value: any
-  ) => {
-    setConfig(prev => ({
+  const update = <K extends keyof RouteBalanceConfig,>(
+  section: K,
+  field: string,
+  value: any) =>
+  {
+    setConfig((prev) => ({
       ...prev,
-      [section]: { ...prev[section], [field]: value },
+      [section]: { ...prev[section], [field]: value }
     }));
     setHasChanges(true);
   };
 
   const handleSave = () => {
     toast.success('Configuración guardada', {
-      description: 'Las reglas de balance de asignación se han actualizado correctamente.',
+      description: 'Las reglas de balance de asignación se han actualizado correctamente.'
     });
     setHasChanges(false);
   };
@@ -81,7 +81,7 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-6 mx-[240px]">
         {/* Clasificación de rutas */}
         <Card className="shadow-none">
           <div className="flex flex-col lg:flex-row">
@@ -102,8 +102,8 @@ export default function SettingsPage() {
                 </div>
                 <Select
                   value={config.classification.classificationCriteria}
-                  onValueChange={v => update('classification', 'classificationCriteria', v)}
-                >
+                  onValueChange={(v) => update('classification', 'classificationCriteria', v)}>
+
                   <SelectTrigger id="criteria" className="max-w-xs">
                     <SelectValue />
                   </SelectTrigger>
@@ -115,8 +115,8 @@ export default function SettingsPage() {
                 </Select>
               </div>
 
-              {(config.classification.classificationCriteria === 'distance' || config.classification.classificationCriteria === 'combined') && (
-                <div className="space-y-2">
+              {(config.classification.classificationCriteria === 'distance' || config.classification.classificationCriteria === 'combined') &&
+              <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5">
                       <Label className="text-sm">Umbral distancia ruta larga</Label>
@@ -127,22 +127,22 @@ export default function SettingsPage() {
                     </Badge>
                   </div>
                   <Slider
-                    value={[config.classification.longRouteDistanceThreshold]}
-                    onValueChange={([v]) => update('classification', 'longRouteDistanceThreshold', v)}
-                    min={50}
-                    max={1000}
-                    step={10}
-                    className="max-w-md"
-                  />
+                  value={[config.classification.longRouteDistanceThreshold]}
+                  onValueChange={([v]) => update('classification', 'longRouteDistanceThreshold', v)}
+                  min={50}
+                  max={1000}
+                  step={10}
+                  className="max-w-md" />
+
                   <div className="flex justify-between text-[10px] text-muted-foreground max-w-md">
                     <span>50 km</span>
                     <span>1000 km</span>
                   </div>
                 </div>
-              )}
+              }
 
-              {(config.classification.classificationCriteria === 'time' || config.classification.classificationCriteria === 'combined') && (
-                <div className="space-y-2">
+              {(config.classification.classificationCriteria === 'time' || config.classification.classificationCriteria === 'combined') &&
+              <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5">
                       <Label className="text-sm">Umbral tiempo ruta larga</Label>
@@ -153,19 +153,19 @@ export default function SettingsPage() {
                     </Badge>
                   </div>
                   <Slider
-                    value={[config.classification.longRouteTimeThreshold]}
-                    onValueChange={([v]) => update('classification', 'longRouteTimeThreshold', v)}
-                    min={1}
-                    max={24}
-                    step={0.5}
-                    className="max-w-md"
-                  />
+                  value={[config.classification.longRouteTimeThreshold]}
+                  onValueChange={([v]) => update('classification', 'longRouteTimeThreshold', v)}
+                  min={1}
+                  max={24}
+                  step={0.5}
+                  className="max-w-md" />
+
                   <div className="flex justify-between text-[10px] text-muted-foreground max-w-md">
                     <span>1 h</span>
                     <span>24 h</span>
                   </div>
                 </div>
-              )}
+              }
             </CardContent>
           </div>
         </Card>
@@ -202,8 +202,8 @@ export default function SettingsPage() {
                   min={10}
                   max={90}
                   step={5}
-                  className="max-w-md"
-                />
+                  className="max-w-md" />
+
               </div>
 
               <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 max-w-md">
@@ -218,12 +218,12 @@ export default function SettingsPage() {
                 <div className="flex h-3 rounded-full overflow-hidden border">
                   <div
                     className="bg-primary transition-all duration-300"
-                    style={{ width: `${config.balanceRule.maxLongRoutePercentage}%` }}
-                  />
+                    style={{ width: `${config.balanceRule.maxLongRoutePercentage}%` }} />
+
                   <div
                     className="bg-muted transition-all duration-300"
-                    style={{ width: `${config.balanceRule.minShortRoutePercentage}%` }}
-                  />
+                    style={{ width: `${config.balanceRule.minShortRoutePercentage}%` }} />
+
                 </div>
                 <div className="flex justify-between text-[10px] text-muted-foreground">
                   <span>Rutas largas ({config.balanceRule.maxLongRoutePercentage}%)</span>
@@ -244,9 +244,9 @@ export default function SettingsPage() {
                   min={1}
                   max={20}
                   value={config.balanceRule.maxConsecutiveLongRoutes}
-                  onChange={e => update('balanceRule', 'maxConsecutiveLongRoutes', parseInt(e.target.value) || 1)}
-                  className="w-24"
-                />
+                  onChange={(e) => update('balanceRule', 'maxConsecutiveLongRoutes', parseInt(e.target.value) || 1)}
+                  className="w-24" />
+
               </div>
             </CardContent>
           </div>
@@ -269,8 +269,8 @@ export default function SettingsPage() {
                 <Label className="text-sm">Tipo de ventana</Label>
                 <Select
                   value={config.analysisWindow.windowType}
-                  onValueChange={v => update('analysisWindow', 'windowType', v)}
-                >
+                  onValueChange={(v) => update('analysisWindow', 'windowType', v)}>
+
                   <SelectTrigger className="max-w-xs">
                     <SelectValue />
                   </SelectTrigger>
@@ -281,8 +281,8 @@ export default function SettingsPage() {
                 </Select>
               </div>
 
-              {config.analysisWindow.windowType === 'trips' ? (
-                <div className="space-y-2">
+              {config.analysisWindow.windowType === 'trips' ?
+              <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5">
                       <Label className="text-sm">Cantidad de viajes</Label>
@@ -293,20 +293,20 @@ export default function SettingsPage() {
                     </Badge>
                   </div>
                   <Slider
-                    value={[config.analysisWindow.lastNTrips]}
-                    onValueChange={([v]) => update('analysisWindow', 'lastNTrips', v)}
-                    min={5}
-                    max={100}
-                    step={5}
-                    className="max-w-md"
-                  />
+                  value={[config.analysisWindow.lastNTrips]}
+                  onValueChange={([v]) => update('analysisWindow', 'lastNTrips', v)}
+                  min={5}
+                  max={100}
+                  step={5}
+                  className="max-w-md" />
+
                   <div className="flex justify-between text-[10px] text-muted-foreground max-w-md">
                     <span>5</span>
                     <span>100</span>
                   </div>
-                </div>
-              ) : (
-                <div className="space-y-2">
+                </div> :
+
+              <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5">
                       <Label className="text-sm">Período (días)</Label>
@@ -317,19 +317,19 @@ export default function SettingsPage() {
                     </Badge>
                   </div>
                   <Slider
-                    value={[config.analysisWindow.timePeriodDays]}
-                    onValueChange={([v]) => update('analysisWindow', 'timePeriodDays', v)}
-                    min={7}
-                    max={180}
-                    step={7}
-                    className="max-w-md"
-                  />
+                  value={[config.analysisWindow.timePeriodDays]}
+                  onValueChange={([v]) => update('analysisWindow', 'timePeriodDays', v)}
+                  min={7}
+                  max={180}
+                  step={7}
+                  className="max-w-md" />
+
                   <div className="flex justify-between text-[10px] text-muted-foreground max-w-md">
                     <span>7 días</span>
                     <span>180 días</span>
                   </div>
                 </div>
-              )}
+              }
             </CardContent>
           </div>
         </Card>
@@ -359,8 +359,8 @@ export default function SettingsPage() {
                 </div>
                 <Switch
                   checked={config.alerts.showPreventiveAlert}
-                  onCheckedChange={v => update('alerts', 'showPreventiveAlert', v)}
-                />
+                  onCheckedChange={(v) => update('alerts', 'showPreventiveAlert', v)} />
+
               </div>
 
               <div className="flex items-center justify-between p-3 rounded-lg border">
@@ -375,8 +375,8 @@ export default function SettingsPage() {
                 </div>
                 <Switch
                   checked={config.alerts.autoBlockOnExceed}
-                  onCheckedChange={v => update('alerts', 'autoBlockOnExceed', v)}
-                />
+                  onCheckedChange={(v) => update('alerts', 'autoBlockOnExceed', v)} />
+
               </div>
 
               <div className="flex items-center justify-between p-3 rounded-lg border">
@@ -391,23 +391,23 @@ export default function SettingsPage() {
                 </div>
                 <Switch
                   checked={config.alerts.requireJustification}
-                  onCheckedChange={v => update('alerts', 'requireJustification', v)}
-                />
+                  onCheckedChange={(v) => update('alerts', 'requireJustification', v)} />
+
               </div>
 
-              {config.alerts.autoBlockOnExceed && config.alerts.requireJustification && (
-                <div className="p-3 rounded-lg bg-muted/50 border border-dashed">
+              {config.alerts.autoBlockOnExceed && config.alerts.requireJustification &&
+              <div className="p-3 rounded-lg bg-muted/50 border border-dashed">
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     <span className="font-medium text-foreground">Modo activo:</span> El sistema bloqueará la asignación cuando se excedan los límites. 
                     El planificador podrá continuar únicamente ingresando una justificación, 
                     la cual quedará registrada con usuario, fecha, hora, motivo y flete asociado.
                   </p>
                 </div>
-              )}
+              }
             </CardContent>
           </div>
         </Card>
       </div>
-    </div>
-  );
+    </div>);
+
 }

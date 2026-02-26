@@ -176,12 +176,12 @@ export default function Home() {
                 transition={{ delay: 0.15 + i * 0.07 }}
                 className={cn(
                   'rounded-lg border p-4',
-                  n.type === 'alert' && 'border-primary/30 bg-primary/5'
+                  n.type === 'alert' && 'border-destructive/30 bg-destructive/5'
                 )}
               >
                 <p className={cn(
                   'text-xs font-semibold mb-1',
-                  n.type === 'alert' ? 'text-primary' : 'text-success'
+                  n.type === 'alert' ? 'text-destructive' : 'text-success'
                 )}>
                   {n.id_label}
                 </p>

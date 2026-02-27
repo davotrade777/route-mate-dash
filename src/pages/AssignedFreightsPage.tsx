@@ -34,6 +34,7 @@ const mockFreights: AssignedFreight[] = [
   { id: 'FLT-003', truck: 'Scania R500', driver: 'Juan Martínez', destination: 'Barcelona Puerto', orders: 4, totalWeight: 7800, status: 'rejected', sentAt: 'Hace 1h', respondedAt: 'Hace 30 min', orderIds: ['PED-1006', 'PED-1007', 'PED-1008', 'PED-1009'], rejectedDrivers: ['Juan Martínez'] },
   { id: 'FLT-004', truck: 'MAN TGX 18.500', driver: 'Ana Rodríguez', destination: 'Sevilla Logística', orders: 2, totalWeight: 2100, status: 'sent', sentAt: 'Hace 20 min', orderIds: ['PED-1010', 'PED-1011'], rejectedDrivers: [] },
   { id: 'FLT-005', truck: 'DAF XF 480', driver: 'Pedro Sánchez', destination: 'Bilbao Puerto', orders: 3, totalWeight: 5600, status: 'sent', sentAt: 'Hace 10 min', orderIds: ['PED-1012', 'PED-1013', 'PED-1014'], rejectedDrivers: [] },
+  { id: 'FLT-006', truck: 'Iveco S-Way 490', driver: 'Roberto Díaz', destination: 'Zona Remota Industrial', orders: 5, totalWeight: 50000, status: 'rejected', sentAt: 'Hace 2h', respondedAt: 'Hace 1h', orderIds: ['PED-1015', 'PED-1016', 'PED-1017', 'PED-1018', 'PED-1019'], rejectedDrivers: ['Carlos García', 'María López', 'Juan Martínez', 'Ana Rodríguez', 'Pedro Sánchez', 'Laura Fernández', 'Miguel Torres', 'Carmen Ruiz', 'Roberto Díaz'] },
 ];
 
 const statusConfig: Record<FreightStatus, { label: string; icon: typeof CheckCircle2; color: string; badgeClass: string }> = {

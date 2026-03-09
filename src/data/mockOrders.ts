@@ -65,6 +65,7 @@ export const mockOrders: Order[] = Array.from({ length: 15 }, (_, i) => {
     deliveryDate: baseDate,
     destination: destinations[Math.floor(Math.random() * destinations.length)],
     weight: Math.floor(Math.random() * 5000) + 500,
+    volume: Math.round((Math.random() * 6.5 + 1.5) * 10) / 10,
     client: clients[Math.floor(Math.random() * clients.length)],
     materials: generateMaterials(),
     status: 'pending',

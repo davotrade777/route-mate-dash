@@ -14,6 +14,7 @@ export interface Order {
   destination: string;
   destinationCoords?: { lat: number; lng: number };
   weight: number;
+  volume: number;
   client: string;
   materials: Material[];
   status: 'pending' | 'scheduled' | 'in-transit' | 'delivered';

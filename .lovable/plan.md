@@ -1,41 +1,68 @@
 
 
-## Forzar pantalla "Sin transportistas compatibles"
+## Rediseno de Gestion de Pedidos segun referencia
 
-### Objetivo
-Agregar un flete rechazado de prueba cuyos requisitos no puedan ser cubiertos por ningun camion disponible, para que al hacer clic en "Reasignar" se muestre la pantalla de error/sugerencias.
+### Analisis critico de la referencia vs estado actual
 
-### Cambios
+**Layout general:**
+- Referencia: contenido principal a la izquierda con padding, barra lateral derecha pegada al borde derecho sin padding, separada por `border-l`, ocupa toda la altura
+- Actual: grid `xl:grid-cols-3` dentro de un `container` centrado — la barra lateral NO llega al borde
 
-**1. Agregar un flete de prueba extremo en `AssignedFreightsPage.tsx`**
+**Header:**
+- Referencia: solo "Pedidos" en bold negro grande (font-extrabold ~2xl), sin icono, sin subtitulo, sin fondo
+- Actual: header sticky con icono Truck, titulo "Gestion de Pedidos", subtitulo, fondo card
 
-Agregar un nuevo flete al array `mockFreights` con las siguientes caracteristicas:
-- Status: `rejected`
-- Peso total muy alto (ej. 50,000 kg) que supere la capacidad de todos los camiones
-- Lista de `rejectedDrivers` que incluya a TODOS los conductores disponibles en `mockTrucks`
+**Controles (sort/filtros):**
+- Referencia: en linea con "Pedidos (15)" — toggle "Ordenar por compatibilidad" + boton "Filtros" con icono SlidersHorizontal, alineados a la derecha
+- Actual: toggle en el header con animaciones excesivas, sin boton filtros
 
-Esto garantiza que al filtrar los camiones compatibles, ningun resultado pase el filtro (ya sea por peso o porque todos los conductores ya rechazaron).
+**Tarjetas de agrupacion automatica:**
+- Referencia: cards planas con borde sutil, sin gradientes ni sombras. Header: "2 Pedidas" + badge outline verde "95% Compatibilidad". Metadata: icono + texto simple (Quito, fecha, volumen m³). Boton "Seleccionar grupo" en outline negro
+- Actual: cards con gradientes, circulos overlapping, badges de colores llenos, boton primary
 
-**2. Datos del flete de prueba**
+**Tarjetas de pedidos:**
+- Referencia: card plana con borde sutil. Primera linea: checkbox + ID bold mono + cliente en gris. Segunda linea: tres columnas con label pequeno gris arriba ("Lugar de entrega", "Peso", "Volumen") y valor debajo. Chevron derecha para expandir
+- Actual: card con mas decoracion, sin labels de columna, sin campo volumen
 
-```
-{
-  id: 'FLT-006',
-  truck: 'Iveco S-Way 490',
-  driver: 'Roberto Díaz',
-  destination: 'Zona Remota Industrial',
-  orders: 5,
-  totalWeight: 50000,
-  status: 'rejected',
-  sentAt: 'Hace 2h',
-  respondedAt: 'Hace 1h',
-  orderIds: ['PED-1015', 'PED-1016', 'PED-1017', 'PED-1018', 'PED-1019'],
-  rejectedDrivers: [nombres de TODOS los drivers en mockTrucks + 'Roberto Díaz']
-}
-```
+**Barra lateral derecha ("Detalles del flete"):**
+- Referencia: titulo "Detalles del flete" en bold. Stepper vertical con 4 pasos numerados (1-Pedidos activo en rojo, 2-Transporte, 3-Ruta, 4-Resumen en gris). Contenido del paso activo: empty state con icono + texto. Boton "Confirmar agrupacion" fijo abajo en gris deshabilitado
+- Actual: SelectionSummary generico sin stepper
 
-Al incluir todos los conductores existentes en `rejectedDrivers`, el filtro en linea 74 eliminara todos los camiones, activando la pantalla vacia con las sugerencias de modificacion del pedido.
+---
 
-### Resultado
-Al navegar a "Fletes Asignados", veras el flete FLT-006 con badge "Rechazado". Al hacer clic en "Reasignar", aparecera la pantalla con el icono de alerta y las sugerencias para modificar el pedido.
+### Cambios a implementar
+
+**1. Agregar `volume` al tipo Order y mock data**
+- Agregar `volume: number` (m³) al tipo `Order` en `src/types/order.ts`
+- Generar valores entre 1.5-8.0 en `mockOrders.ts`
+
+**2. Reestructurar layout en `OrderManagement.tsx`**
+- Eliminar header sticky con icono/subtitulo
+- Cambiar a layout flex: contenido principal `flex-1` con padding, barra lateral `w-[340px] border-l` sin padding derecho, full height
+- Titulo "Pedidos" solo en `text-2xl font-extrabold`
+- Mover controles (sort toggle + boton Filtros) en linea con subtitulo "Pedidos (N)"
+
+**3. Nuevo componente `FreightDetailsSidebar.tsx`**
+- Panel fijo a la derecha con `border-l`, padding interno, fondo blanco
+- Titulo "Detalles del flete" bold
+- Stepper vertical: 4 pasos con numeros en circulos (paso 1 activo en primary/rojo, resto gris)
+- Contenido del paso 1: muestra SelectionSummary o empty state (icono Package + "Selecciona un pedido para empezar a agrupar")
+- Boton "Confirmar agrupacion" fijo en la parte inferior, deshabilitado cuando no hay seleccion
+
+**4. Redisenar `AutoGroupingSuggestions.tsx`**
+- Eliminar gradientes, circulos overlapping, badges llenos
+- Card plana: "N Pedidas" texto + badge outline verde "X% Compatibilidad"
+- Metadata con iconos simples: ubicacion, fecha, volumen
+- Boton "Seleccionar grupo" en `variant="outline"` con borde negro
+
+**5. Redisenar `OrdersTable.tsx` (OrderCard)**
+- Primera linea: checkbox + ID mono bold + cliente gris
+- Segunda linea: tres columnas con label pequeno gris ("Lugar de entrega", "Peso", "Volumen") y valor debajo
+- Chevron a la derecha para expandir materiales
+- Eliminar bordes coloreados, rings, badges de compatibilidad por defecto
+- Cards mas planas, sin sombras
+
+**6. Adaptar `SelectionSummary.tsx`**
+- Simplificar para integrarse dentro del stepper del sidebar
+- Mantener logica pero ajustar estilos al panel lateral
 

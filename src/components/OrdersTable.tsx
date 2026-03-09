@@ -7,7 +7,6 @@ import { cn } from '@/lib/utils';
 import { Order, CompatibilityResult } from '@/types/order';
 import { MaterialTag } from './MaterialTag';
 import { Checkbox } from '@/components/ui/checkbox';
-import { CompatibilityBadge } from './CompatibilityBadge';
 
 interface OrdersTableProps {
   orders: Order[];
@@ -72,6 +71,51 @@ interface OrderCardProps {
   hasPrimary: boolean;
 }
 
+function ScoreCircle({ score }: { score: number }) {
+  const getColor = () => {
+    if (score >= 80) return 'hsl(var(--match-excellent))';
+    if (score >= 60) return 'hsl(var(--match-good))';
+    if (score >= 40) return 'hsl(var(--match-moderate))';
+    return 'hsl(var(--match-poor))';
+  };
+
+  const getTextClass = () => {
+    if (score >= 80) return 'text-match-excellent';
+    if (score >= 60) return 'text-match-good';
+    if (score >= 40) return 'text-match-moderate';
+    return 'text-match-poor';
+  };
+
+  const circumference = 2 * Math.PI * 18;
+
+  return (
+    <div className="relative w-12 h-12 flex-shrink-0">
+      <svg className="w-12 h-12 -rotate-90" viewBox="0 0 44 44">
+        <circle cx="22" cy="22" r="18" fill="none" stroke="currentColor" strokeWidth="3" className="text-muted/30" />
+        <motion.circle
+          cx="22" cy="22" r="18" fill="none"
+          stroke={getColor()}
+          strokeWidth="3"
+          strokeLinecap="round"
+          initial={{ strokeDasharray: `0 ${circumference}` }}
+          animate={{ strokeDasharray: `${(score / 100) * circumference} ${circumference}` }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+        />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <motion.span
+          className={cn('text-xs font-bold', getTextClass())}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+        >
+          {score}%
+        </motion.span>
+      </div>
+    </div>
+  );
+}
+
 function OrderCard({ order, index, isSelected, isPrimary, sortByCompatibility, onToggleOrder, compatibility, hasPrimary }: OrderCardProps) {
   const [expanded, setExpanded] = useState(false);
 
@@ -93,7 +137,7 @@ function OrderCard({ order, index, isSelected, isPrimary, sortByCompatibility, o
         !isSelected && 'hover:bg-table-hover'
       )}
     >
-      {/* Row 1: Checkbox + ID + Client + Chevron */}
+      {/* Row 1: Checkbox + ID + Client + Circle + Chevron */}
       <div className="flex items-center gap-3">
         <Checkbox
           checked={isSelected}
@@ -108,24 +152,20 @@ function OrderCard({ order, index, isSelected, isPrimary, sortByCompatibility, o
             Principal
           </span>
         )}
-        {!isPrimary && hasPrimary && compatibility && (
-          <div className="ml-1">
-            <CompatibilityBadge score={compatibility.score} size="sm" />
-          </div>
-        )}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setExpanded(prev => !prev);
-          }}
-          className="ml-auto flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors"
-        >
-          {expanded ? (
-            <ChevronDown className="h-4 w-4" />
-          ) : (
-            <ChevronRight className="h-4 w-4" />
+        <div className="ml-auto flex items-center gap-3">
+          {!isPrimary && hasPrimary && compatibility && (
+            <ScoreCircle score={compatibility.score} />
           )}
-        </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setExpanded(prev => !prev);
+            }}
+            className="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+          </button>
+        </div>
       </div>
 
       {/* Row 2: Labeled columns */}

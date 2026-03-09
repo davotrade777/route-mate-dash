@@ -23,43 +23,43 @@ export function TruckAssignment({ groupedOrders, onBack, onConfirm }: TruckAssig
   const [showOnlyRecommended, setShowOnlyRecommended] = useState(false);
 
   const totalWeight = useMemo(() =>
-    groupedOrders.reduce((sum, order) => sum + order.weight, 0),
-    [groupedOrders]
+  groupedOrders.reduce((sum, order) => sum + order.weight, 0),
+  [groupedOrders]
   );
 
   const earliestDate = useMemo(() =>
-    groupedOrders.reduce((earliest, order) =>
-      order.deliveryDate < earliest ? order.deliveryDate : earliest,
-      groupedOrders[0]?.deliveryDate || new Date()
-    ),
-    [groupedOrders]
+  groupedOrders.reduce((earliest, order) =>
+  order.deliveryDate < earliest ? order.deliveryDate : earliest,
+  groupedOrders[0]?.deliveryDate || new Date()
+  ),
+  [groupedOrders]
   );
 
   const sortedTrucks = useMemo(() =>
-    sortTrucksByCompatibility(mockTrucks, groupedOrders, earliestDate),
-    [groupedOrders, earliestDate]
+  sortTrucksByCompatibility(mockTrucks, groupedOrders, earliestDate),
+  [groupedOrders, earliestDate]
   );
 
   const filteredTrucks = useMemo(() =>
-    showOnlyRecommended
-      ? sortedTrucks.filter(t => t.compatibility.isRecommended)
-      : sortedTrucks,
-    [sortedTrucks, showOnlyRecommended]
+  showOnlyRecommended ?
+  sortedTrucks.filter((t) => t.compatibility.isRecommended) :
+  sortedTrucks,
+  [sortedTrucks, showOnlyRecommended]
   );
 
-  const recommendedCount = sortedTrucks.filter(t => t.compatibility.isRecommended).length;
+  const recommendedCount = sortedTrucks.filter((t) => t.compatibility.isRecommended).length;
 
   const handleSelectTruck = (truckId: string) => {
-    setSelectedTruck(prev => prev === truckId ? null : truckId);
+    setSelectedTruck((prev) => prev === truckId ? null : truckId);
   };
 
-  const selectedTruckData = selectedTruck
-    ? mockTrucks.find(t => t.id === selectedTruck) || null
-    : null;
+  const selectedTruckData = selectedTruck ?
+  mockTrucks.find((t) => t.id === selectedTruck) || null :
+  null;
 
-  const selectedCompatibility = selectedTruck
-    ? sortedTrucks.find(t => t.truck.id === selectedTruck)?.compatibility || null
-    : null;
+  const selectedCompatibility = selectedTruck ?
+  sortedTrucks.find((t) => t.truck.id === selectedTruck)?.compatibility || null :
+  null;
 
   const handleConfirmAssignment = () => {
     if (!selectedTruck) {
@@ -67,18 +67,18 @@ export function TruckAssignment({ groupedOrders, onBack, onConfirm }: TruckAssig
       return;
     }
 
-    const truck = mockTrucks.find(t => t.id === selectedTruck);
-    const compatibility = sortedTrucks.find(t => t.truck.id === selectedTruck)?.compatibility;
+    const truck = mockTrucks.find((t) => t.id === selectedTruck);
+    const compatibility = sortedTrucks.find((t) => t.truck.id === selectedTruck)?.compatibility;
 
     if (compatibility && !compatibility.isRecommended) {
       toast.warning(`Camión ${selectedTruck} asignado`, {
         description: 'Has seleccionado un camión con advertencias. La decisión es tuya.',
-        icon: <AlertTriangle className="h-4 w-4" />,
+        icon: <AlertTriangle className="h-4 w-4" />
       });
     } else {
       toast.success(`Camión ${selectedTruck} asignado correctamente`, {
         description: `Conductor: ${truck?.driver}`,
-        icon: <CheckCircle2 className="h-4 w-4" />,
+        icon: <CheckCircle2 className="h-4 w-4" />
       });
     }
 
@@ -88,7 +88,7 @@ export function TruckAssignment({ groupedOrders, onBack, onConfirm }: TruckAssig
   return (
     <div className="flex h-screen bg-background overflow-hidden">
       {/* Main content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden px-[100px]">
         {/* Simple header */}
         <div className="p-6 pb-0">
           <Button variant="ghost" size="sm" onClick={onBack} className="gap-2 -ml-2 mb-4 text-muted-foreground hover:text-foreground">
@@ -113,8 +113,8 @@ export function TruckAssignment({ groupedOrders, onBack, onConfirm }: TruckAssig
             <Switch
               id="filter-switch"
               checked={showOnlyRecommended}
-              onCheckedChange={setShowOnlyRecommended}
-            />
+              onCheckedChange={setShowOnlyRecommended} />
+            
           </div>
         </div>
 
@@ -122,32 +122,32 @@ export function TruckAssignment({ groupedOrders, onBack, onConfirm }: TruckAssig
         <div className="flex-1 overflow-y-auto px-6 pb-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <AnimatePresence mode="popLayout">
-              {filteredTrucks.map(({ truck, compatibility }) => (
-                <TruckCard
-                  key={truck.id}
-                  truck={truck}
-                  compatibility={compatibility}
-                  isSelected={selectedTruck === truck.id}
-                  onSelect={handleSelectTruck}
-                  totalWeight={totalWeight}
-                />
-              ))}
+              {filteredTrucks.map(({ truck, compatibility }) =>
+              <TruckCard
+                key={truck.id}
+                truck={truck}
+                compatibility={compatibility}
+                isSelected={selectedTruck === truck.id}
+                onSelect={handleSelectTruck}
+                totalWeight={totalWeight} />
+
+              )}
             </AnimatePresence>
           </div>
 
-          {filteredTrucks.length === 0 && (
-            <div className="text-center py-12 text-muted-foreground">
+          {filteredTrucks.length === 0 &&
+          <div className="text-center py-12 text-muted-foreground">
               <Truck className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No hay camiones que cumplan todos los criterios.</p>
               <Button
-                variant="link"
-                onClick={() => setShowOnlyRecommended(false)}
-                className="mt-2"
-              >
+              variant="link"
+              onClick={() => setShowOnlyRecommended(false)}
+              className="mt-2">
+              
                 Ver todos los camiones
               </Button>
             </div>
-          )}
+          }
         </div>
       </div>
 
@@ -156,8 +156,8 @@ export function TruckAssignment({ groupedOrders, onBack, onConfirm }: TruckAssig
         selectedTruck={selectedTruckData}
         compatibility={selectedCompatibility}
         totalWeight={totalWeight}
-        onConfirm={handleConfirmAssignment}
-      />
-    </div>
-  );
+        onConfirm={handleConfirmAssignment} />
+      
+    </div>);
+
 }

@@ -200,44 +200,43 @@ export function RouteOptimization({ groupedOrders, truck, onBack, onConfirm }: R
 
 // --- Timeline stop ---
 
-function TimelineStop({ stop, index, isLast, isDraggable }: {
-  stop: RouteStop; index: number; isLast: boolean; isDraggable: boolean;
+function TimelineStop({ stop, index, isLast }: {
+  stop: RouteStop; index: number; isLast: boolean;
 }) {
   return (
-    <div className={cn('flex items-start gap-4', !isLast && 'border-b border-border')}>
-      {/* Circle + line */}
-      <div className="flex flex-col items-center">
-        <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold flex-shrink-0">
-          {index + 1}
-        </div>
-        {!isLast && <div className="w-px flex-1 bg-border mt-2" />}
+    <div className="relative flex items-start gap-5 pb-10 group hover:bg-muted/30 rounded-lg transition-colors px-1 -mx-1">
+      {/* Square number indicator */}
+      <div className="relative z-10 w-8 h-8 rounded-md bg-foreground flex items-center justify-center text-background text-sm font-bold flex-shrink-0">
+        {index + 1}
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-w-0 py-3">
-        <div className="flex items-start justify-between gap-4">
+      <div className="flex-1 min-w-0 pt-0.5">
+        <div className="flex items-start justify-between gap-6">
           <div className="min-w-0">
-            <div className="flex items-center gap-2 mb-0.5">
-              {isDraggable && <GripVertical className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />}
-              <span className="text-xs text-muted-foreground font-mono">{stop.order.id}</span>
-              <span className="text-xs text-muted-foreground">·</span>
-              <span className="text-xs text-muted-foreground">
-                {format(stop.order.deliveryDate, 'd MMM yyyy', { locale: es })}
+            <div className="flex items-center gap-3 mb-1">
+              <span className="text-sm text-muted-foreground font-mono">{stop.order.id}</span>
+              <span className="text-sm text-muted-foreground flex items-center gap-1">
+                <Calendar className="h-3.5 w-3.5" />
+                {format(stop.order.deliveryDate, 'dd/MM/yyyy', { locale: es })}
               </span>
             </div>
-            <p className="text-sm font-bold text-foreground">{stop.order.destination}</p>
+            <p className="text-base font-bold text-foreground">{stop.order.destination}</p>
           </div>
 
           {/* Cumulative metrics */}
-          <div className="text-right flex-shrink-0">
-            <p className="text-xs text-muted-foreground mb-0.5">Trayecto acumulado</p>
-            <div className="flex items-center gap-3 justify-end">
-              <span className="text-xs text-muted-foreground flex items-center gap-1">
-                <Ruler className="h-3 w-3" />
+          <div className="text-right flex-shrink-0 pt-0.5">
+            <p className="text-sm text-muted-foreground mb-1 flex items-center gap-1 justify-end">
+              Trayecto acumulado
+              <Info className="h-3.5 w-3.5" />
+            </p>
+            <div className="flex items-center gap-4 justify-end">
+              <span className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
                 {Math.round(stop.cumulativeDistance)} km
               </span>
-              <span className="text-xs text-muted-foreground flex items-center gap-1">
-                <Clock className="h-3 w-3" />
+              <span className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                <Clock className="h-3.5 w-3.5 text-muted-foreground" />
                 {formatDuration(stop.cumulativeTime)}
               </span>
             </div>

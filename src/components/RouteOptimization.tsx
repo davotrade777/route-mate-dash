@@ -132,19 +132,21 @@ export function RouteOptimization({ groupedOrders, truck, onBack, onConfirm }: R
             })}
           </div>
 
-          {/* Timeline stops */}
+          {/* Orden de entregas */}
+          <h2 className="text-lg font-semibold text-foreground mb-6">Orden de entregas</h2>
+
           <div className="relative">
+            {/* Vertical line spanning all stops */}
+            <div className="absolute left-[15px] top-0 bottom-0 w-0.5 bg-border" />
+
             {/* Origin */}
-            <div className="flex items-start gap-4 pb-6">
-              <div className="flex flex-col items-center">
-                <div className="w-8 h-8 rounded-full bg-foreground flex items-center justify-center flex-shrink-0">
-                  <MapPin className="h-4 w-4 text-background" />
-                </div>
-                <div className="w-px flex-1 bg-border mt-2" />
+            <div className="relative flex items-start gap-5 pb-10">
+              <div className="relative z-10 w-8 h-8 rounded-full bg-foreground flex items-center justify-center flex-shrink-0">
+                <div className="w-3 h-3 rounded-full bg-background" />
               </div>
               <div className="pt-1">
-                <p className="text-xs font-medium text-primary">Punto de inicio</p>
-                <p className="text-sm font-bold text-foreground">{truck.currentLocation}</p>
+                <p className="text-sm font-medium text-primary">Punto de inicio</p>
+                <p className="text-base font-bold text-foreground">{truck.currentLocation}</p>
               </div>
             </div>
 
@@ -160,8 +162,8 @@ export function RouteOptimization({ groupedOrders, truck, onBack, onConfirm }: R
                   <Reorder.Item
                     key={stop.order.id}
                     value={stop.order}
-                    dragListener={activeCriteria === 'custom'}
-                    className={activeCriteria === 'custom' ? 'cursor-grab active:cursor-grabbing' : ''}
+                    dragListener={true}
+                    className="cursor-grab active:cursor-grabbing"
                   >
                     <motion.div
                       layout
@@ -174,7 +176,6 @@ export function RouteOptimization({ groupedOrders, truck, onBack, onConfirm }: R
                         stop={stop}
                         index={index}
                         isLast={index === currentStops.length - 1}
-                        isDraggable={activeCriteria === 'custom'}
                       />
                     </motion.div>
                   </Reorder.Item>

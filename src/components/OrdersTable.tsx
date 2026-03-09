@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { Order, CompatibilityResult } from '@/types/order';
 import { MaterialTag } from './MaterialTag';
 import { Checkbox } from '@/components/ui/checkbox';
+import { CompatibilityBadge } from './CompatibilityBadge';
 
 interface OrdersTableProps {
   orders: Order[];
@@ -51,6 +52,8 @@ export function OrdersTable({
             isPrimary={order.id === primarySelection}
             sortByCompatibility={sortByCompatibility}
             onToggleOrder={onToggleOrder}
+            compatibility={compatibilityMap.get(order.id)}
+            hasPrimary={!!primarySelection}
           />
         ))}
       </AnimatePresence>
@@ -65,9 +68,11 @@ interface OrderCardProps {
   isPrimary: boolean;
   sortByCompatibility: boolean;
   onToggleOrder: (id: string) => void;
+  compatibility?: CompatibilityResult;
+  hasPrimary: boolean;
 }
 
-function OrderCard({ order, index, isSelected, isPrimary, sortByCompatibility, onToggleOrder }: OrderCardProps) {
+function OrderCard({ order, index, isSelected, isPrimary, sortByCompatibility, onToggleOrder, compatibility, hasPrimary }: OrderCardProps) {
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -102,6 +107,11 @@ function OrderCard({ order, index, isSelected, isPrimary, sortByCompatibility, o
           <span className="text-xs bg-primary text-primary-foreground px-1.5 py-0.5 rounded ml-1">
             Principal
           </span>
+        )}
+        {!isPrimary && hasPrimary && compatibility && (
+          <div className="ml-1">
+            <CompatibilityBadge score={compatibility.score} size="sm" />
+          </div>
         )}
         <button
           onClick={(e) => {

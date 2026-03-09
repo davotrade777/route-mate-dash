@@ -108,6 +108,11 @@ function OrderCard({ order, index, isSelected, isPrimary, sortByCompatibility, o
             Principal
           </span>
         )}
+        {!isPrimary && hasPrimary && compatibility && (
+          <div className="ml-1">
+            <CompatibilityBadge score={compatibility.score} size="sm" />
+          </div>
+        )}
         <button
           onClick={(e) => {
             e.stopPropagation();

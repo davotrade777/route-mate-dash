@@ -11,7 +11,9 @@ export interface Truck {
   allowedMaterials: MaterialType[];
   status: 'available' | 'in-use' | 'maintenance';
   driver: string;
+  driverPhone: string;
   fuelType: 'diesel' | 'electric' | 'hybrid';
+  dimensions: string; // e.g. "2.6m x 1.5m x 12.5m"
 }
 
 export interface TruckCompatibilityResult {

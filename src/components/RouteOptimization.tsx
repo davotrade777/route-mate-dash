@@ -99,7 +99,7 @@ export function RouteOptimization({ groupedOrders, truck, onBack, onConfirm }: R
     <div className="flex h-screen bg-background">
       {/* Main content */}
       <div className="flex-1 overflow-y-auto">
-        <div className="px-8 py-6">
+        <div className="py-6 px-[100px]">
           {/* Header */}
           <Button variant="ghost" size="sm" onClick={onBack} className="mb-4 -ml-2 text-muted-foreground">
             <ArrowLeft className="h-4 w-4 mr-1" />

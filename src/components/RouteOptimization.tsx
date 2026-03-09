@@ -2,8 +2,8 @@ import { useState, useMemo, useEffect } from 'react';
 import { Reorder, AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowLeft, MapPin, Clock, Ruler, Sparkles, Calendar, Info,
-  GripVertical,
-} from 'lucide-react';
+  GripVertical } from
+'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Order } from '@/types/order';
@@ -15,8 +15,8 @@ import { RouteSidebar } from './RouteSidebar';
 import {
   buildRouteStops, sortByDistance, sortByTime, sortRecommended,
   analyzeRoute, getRouteMetrics, formatDuration,
-  type SortCriteria, type RouteStop, type RouteWarning,
-} from '@/utils/routeOptimizer';
+  type SortCriteria, type RouteStop, type RouteWarning } from
+'@/utils/routeOptimizer';
 
 interface RouteOptimizationProps {
   groupedOrders: Order[];
@@ -25,11 +25,11 @@ interface RouteOptimizationProps {
   onConfirm: (orderedOrders: Order[], routeDistance: number, routeTime: number, routeWarnings: RouteWarning[]) => void;
 }
 
-const CRITERIA_OPTIONS: { id: SortCriteria; label: string; icon: typeof Ruler; description: string }[] = [
-  { id: 'recommended', label: 'Ruta recomendada', icon: Sparkles, description: 'Balance óptimo' },
-  { id: 'distance', label: 'Mejor distancia', icon: Ruler, description: 'Menos kilómetros' },
-  { id: 'time', label: 'Más urgente', icon: Clock, description: 'Priorizar entregas' },
-];
+const CRITERIA_OPTIONS: {id: SortCriteria;label: string;icon: typeof Ruler;description: string;}[] = [
+{ id: 'recommended', label: 'Ruta recomendada', icon: Sparkles, description: 'Balance óptimo' },
+{ id: 'distance', label: 'Mejor distancia', icon: Ruler, description: 'Menos kilómetros' },
+{ id: 'time', label: 'Más urgente', icon: Clock, description: 'Priorizar entregas' }];
+
 
 export function RouteOptimization({ groupedOrders, truck, onBack, onConfirm }: RouteOptimizationProps) {
   const [activeCriteria, setActiveCriteria] = useState<SortCriteria>('recommended');
@@ -42,10 +42,10 @@ export function RouteOptimization({ groupedOrders, truck, onBack, onConfirm }: R
 
   const activeOrders = useMemo(() => {
     switch (activeCriteria) {
-      case 'distance': return sortedByDistance;
-      case 'time': return sortedByTime;
-      case 'recommended': return sortedRecommended;
-      case 'custom': return customOrder;
+      case 'distance':return sortedByDistance;
+      case 'time':return sortedByTime;
+      case 'recommended':return sortedRecommended;
+      case 'custom':return customOrder;
     }
   }, [activeCriteria, sortedByDistance, sortedByTime, sortedRecommended, customOrder]);
 
@@ -90,7 +90,7 @@ export function RouteOptimization({ groupedOrders, truck, onBack, onConfirm }: R
 
   const handleConfirm = () => {
     toast.success('Ruta confirmada', {
-      description: `${activeOrders.length} paradas · ${Math.round(metrics.totalDistance)} km · ${formatDuration(metrics.totalTime)}`,
+      description: `${activeOrders.length} paradas · ${Math.round(metrics.totalDistance)} km · ${formatDuration(metrics.totalTime)}`
     });
     onConfirm(activeOrders, metrics.totalDistance, metrics.totalTime, warnings);
   };
@@ -117,18 +117,18 @@ export function RouteOptimization({ groupedOrders, truck, onBack, onConfirm }: R
                   onClick={() => handleCriteriaChange(opt.id)}
                   className={cn(
                     'flex items-center gap-2 px-4 py-2.5 rounded-lg border text-left transition-colors',
-                    isActive
-                      ? 'bg-primary/5 border-primary/30'
-                      : 'border-transparent hover:bg-muted/50'
-                  )}
-                >
+                    isActive ?
+                    'bg-primary/5 border-primary/30' :
+                    'border-transparent hover:bg-muted/50'
+                  )}>
+                  
                   <opt.icon className={cn('h-4 w-4 flex-shrink-0', isActive ? 'text-primary' : 'text-muted-foreground')} />
                   <div>
                     <p className={cn('text-sm font-semibold', isActive ? 'text-primary' : 'text-foreground')}>{opt.label}</p>
                     <p className="text-xs text-muted-foreground">{opt.description}</p>
                   </div>
-                </button>
-              );
+                </button>);
+
             })}
           </div>
 
@@ -155,31 +155,31 @@ export function RouteOptimization({ groupedOrders, truck, onBack, onConfirm }: R
               axis="y"
               values={activeCriteria === 'custom' ? customOrder : activeOrders}
               onReorder={handleReorder}
-              className="space-y-0"
-            >
+              className="space-y-0">
+              
               <AnimatePresence mode="popLayout">
-                {currentStops.map((stop, index) => (
-                  <Reorder.Item
-                    key={stop.order.id}
-                    value={stop.order}
-                    dragListener={true}
-                    className="cursor-grab active:cursor-grabbing"
-                  >
+                {currentStops.map((stop, index) =>
+                <Reorder.Item
+                  key={stop.order.id}
+                  value={stop.order}
+                  dragListener={true}
+                  className="cursor-grab active:cursor-grabbing">
+                  
                     <motion.div
-                      layout
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 10 }}
-                      transition={{ duration: 0.2, delay: index * 0.03 }}
-                    >
+                    layout
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 10 }}
+                    transition={{ duration: 0.2, delay: index * 0.03 }} className="py-[6px]">
+                    
                       <TimelineStop
-                        stop={stop}
-                        index={index}
-                        isLast={index === currentStops.length - 1}
-                      />
+                      stop={stop}
+                      index={index}
+                      isLast={index === currentStops.length - 1} />
+                    
                     </motion.div>
                   </Reorder.Item>
-                ))}
+                )}
               </AnimatePresence>
             </Reorder.Group>
           </div>
@@ -192,19 +192,19 @@ export function RouteOptimization({ groupedOrders, truck, onBack, onConfirm }: R
         totalTime={metrics.totalTime}
         stopCount={metrics.stopCount}
         savedHours={savedHours}
-        onConfirm={handleConfirm}
-      />
-    </div>
-  );
+        onConfirm={handleConfirm} />
+      
+    </div>);
+
 }
 
 // --- Timeline stop ---
 
-function TimelineStop({ stop, index, isLast }: {
-  stop: RouteStop; index: number; isLast: boolean;
-}) {
+function TimelineStop({ stop, index, isLast
+
+}: {stop: RouteStop;index: number;isLast: boolean;}) {
   return (
-    <div className="relative flex items-start gap-5 pb-10 group hover:bg-muted/30 rounded-lg transition-colors px-1 -mx-1">
+    <div className="relative flex items-start gap-5 pb-10 group rounded-lg transition-colors -mx-1 bg-primary-foreground py-[16px] px-[16px]">
       {/* Square number indicator */}
       <div className="relative z-10 w-8 h-8 rounded-md bg-foreground flex items-center justify-center text-background text-sm font-bold flex-shrink-0">
         {index + 1}
@@ -243,6 +243,6 @@ function TimelineStop({ stop, index, isLast }: {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 }

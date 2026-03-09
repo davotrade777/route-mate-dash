@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Reorder, AnimatePresence, motion } from 'framer-motion';
 import {
-  ArrowLeft, MapPin, Clock, Ruler, Sparkles,
+  ArrowLeft, MapPin, Clock, Ruler, Sparkles, Calendar, Info,
   GripVertical,
 } from 'lucide-react';
 import { format } from 'date-fns';

@@ -1,18 +1,12 @@
 import { useMemo, useState } from 'react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { MapPin, Calendar, Check, Building2, ChevronDown, Package } from 'lucide-react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Order, CompatibilityResult } from '@/types/order';
 import { MaterialTag } from './MaterialTag';
-import { CompatibilityIndicator } from './CompatibilityBadge';
 import { Checkbox } from '@/components/ui/checkbox';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 
 interface OrdersTableProps {
   orders: Order[];
@@ -33,46 +27,32 @@ export function OrdersTable({
 }: OrdersTableProps) {
   const sortedOrders = useMemo(() => {
     if (!sortByCompatibility || !primarySelection) return orders;
-
     return [...orders].sort((a, b) => {
       if (a.id === primarySelection) return -1;
       if (b.id === primarySelection) return 1;
-
       const compA = compatibilityMap.get(a.id);
       const compB = compatibilityMap.get(b.id);
-
       if (!compA && !compB) return 0;
       if (!compA) return 1;
       if (!compB) return -1;
-
       return compB.score - compA.score;
     });
   }, [orders, sortByCompatibility, primarySelection, compatibilityMap]);
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       <AnimatePresence mode="popLayout">
-        {sortedOrders.map((order, index) => {
-          const isSelected = selectedOrders.has(order.id);
-          const isPrimary = order.id === primarySelection;
-          const compatibility = compatibilityMap.get(order.id);
-          const hasWarnings = compatibility && compatibility.warnings.length > 0;
-
-          return (
-            <OrderCard
-              key={order.id}
-              order={order}
-              index={index}
-              isSelected={isSelected}
-              isPrimary={isPrimary}
-              compatibility={compatibility}
-              hasWarnings={!!hasWarnings}
-              primarySelection={primarySelection}
-              sortByCompatibility={sortByCompatibility}
-              onToggleOrder={onToggleOrder}
-            />
-          );
-        })}
+        {sortedOrders.map((order, index) => (
+          <OrderCard
+            key={order.id}
+            order={order}
+            index={index}
+            isSelected={selectedOrders.has(order.id)}
+            isPrimary={order.id === primarySelection}
+            sortByCompatibility={sortByCompatibility}
+            onToggleOrder={onToggleOrder}
+          />
+        ))}
       </AnimatePresence>
     </div>
   );
@@ -83,204 +63,100 @@ interface OrderCardProps {
   index: number;
   isSelected: boolean;
   isPrimary: boolean;
-  compatibility?: CompatibilityResult;
-  hasWarnings: boolean;
-  primarySelection: string | null;
   sortByCompatibility: boolean;
   onToggleOrder: (id: string) => void;
 }
 
-function OrderCard({
-  order, index, isSelected, isPrimary, compatibility, hasWarnings,
-  primarySelection, sortByCompatibility, onToggleOrder,
-}: OrderCardProps) {
-  const [materialsOpen, setMaterialsOpen] = useState(false);
+function OrderCard({ order, index, isSelected, isPrimary, sortByCompatibility, onToggleOrder }: OrderCardProps) {
+  const [expanded, setExpanded] = useState(false);
 
   return (
     <motion.div
-      key={order.id}
       layout
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{
         opacity: 1,
         y: 0,
-        transition: {
-          type: 'spring',
-          stiffness: 300,
-          damping: 30,
-          delay: sortByCompatibility ? index * 0.03 : 0,
-        },
+        transition: { delay: sortByCompatibility ? index * 0.02 : 0 },
       }}
-      exit={{ opacity: 0, scale: 0.95 }}
+      exit={{ opacity: 0, scale: 0.98 }}
       onClick={() => onToggleOrder(order.id)}
       className={cn(
-        'group relative rounded-xl border bg-card p-4 cursor-pointer transition-all duration-200',
-        isSelected && 'bg-table-selected border-primary/30 shadow-md',
-        isPrimary && 'ring-2 ring-primary border-primary shadow-lg',
-        !isSelected && 'hover:bg-table-hover hover:border-border/80 hover:shadow-sm'
+        'rounded-lg border bg-card p-4 cursor-pointer transition-colors',
+        isSelected && 'bg-table-selected border-primary/30',
+        isPrimary && 'ring-1 ring-primary border-primary',
+        !isSelected && 'hover:bg-table-hover'
       )}
     >
-      {/* Primary badge */}
-      {isPrimary && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="absolute -top-2 left-4 px-2 py-0.5 bg-primary text-primary-foreground text-xs font-medium rounded-full"
-        >
-          Pedido principal
-        </motion.div>
-      )}
-
-      <div className="flex gap-4">
-        {/* Checkbox */}
-        <div className="flex-shrink-0 pt-1">
-          <Checkbox
-            checked={isSelected}
-            onCheckedChange={() => onToggleOrder(order.id)}
-            onClick={(e) => e.stopPropagation()}
-            className={cn(
-              'h-5 w-5',
-              isPrimary && 'border-primary data-[state=checked]:bg-primary'
-            )}
-          />
-        </div>
-
-        {/* Main content */}
-        <div className="flex-1 min-w-0 space-y-3">
-          {/* Header row */}
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex items-center gap-3 flex-wrap">
-              <span className={cn(
-                'font-mono text-base font-semibold',
-                isPrimary ? 'text-primary' : 'text-foreground'
-              )}>
-                {order.id}
-              </span>
-              <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                <Building2 className="h-3.5 w-3.5" />
-                <span className="truncate max-w-[180px]">{order.client}</span>
-              </div>
-            </div>
-            <span className={cn(
-              'flex-shrink-0 font-semibold tabular-nums',
-              isPrimary ? 'text-primary' : 'text-foreground'
-            )}>
-              {order.weight.toLocaleString()} kg
-            </span>
-          </div>
-
-          {/* Info row */}
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-            <div className="flex items-center gap-1.5">
-              <div className={cn(
-                'flex items-center justify-center w-6 h-6 rounded-full',
-                compatibility?.destinationMatch
-                  ? 'bg-match-excellent/20'
-                  : 'bg-muted'
-              )}>
-                <MapPin className={cn(
-                  'h-3.5 w-3.5',
-                  compatibility?.destinationMatch
-                    ? 'text-match-excellent'
-                    : 'text-muted-foreground'
-                )} />
-              </div>
-              <span className="font-medium">{order.destination}</span>
-              {compatibility?.destinationMatch && (
-                <Tooltip>
-                  <TooltipTrigger>
-                    <Check className="h-3.5 w-3.5 text-match-excellent" />
-                  </TooltipTrigger>
-                  <TooltipContent>Mismo destino que el pedido principal</TooltipContent>
-                </Tooltip>
-              )}
-            </div>
-            <div className="flex items-center gap-1.5 text-muted-foreground">
-              <Calendar className="h-3.5 w-3.5" />
-              <span>{format(order.deliveryDate, "EEEE d MMM", { locale: es })}</span>
-            </div>
-          </div>
-
-          {/* Materials toggle button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setMaterialsOpen((prev) => !prev);
-            }}
-            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <Package className="h-3.5 w-3.5" />
-            <span>{order.materials.length} material{order.materials.length !== 1 ? 'es' : ''}</span>
-            <ChevronDown
-              className={cn(
-                'h-3.5 w-3.5 transition-transform duration-200',
-                materialsOpen && 'rotate-180'
-              )}
-            />
-          </button>
-
-          {/* Materials collapsible */}
-          <AnimatePresence>
-            {materialsOpen && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.2 }}
-                className="overflow-hidden"
-              >
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {order.materials.map((material) => (
-                    <MaterialTag
-                      key={material.id}
-                      type={material.type}
-                      name={material.name}
-                      hasWarning={
-                        hasWarnings &&
-                        compatibility?.warnings.some((w) =>
-                          w.toLowerCase().includes(material.type)
-                        )
-                      }
-                    />
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* Compatibility indicator */}
-        {primarySelection && !isPrimary && compatibility && (
-          <div className="flex-shrink-0 flex flex-col items-center justify-center pl-2 border-l border-border/50">
-            <CompatibilityIndicator
-              score={compatibility.score}
-              destinationMatch={compatibility.destinationMatch}
-              dateProximity={compatibility.dateProximity}
-              materialCompatibility={compatibility.materialCompatibility}
-            />
-            {hasWarnings && (
-              <Tooltip>
-                <TooltipTrigger>
-                  <motion.span
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="text-xs text-warning cursor-help mt-1"
-                  >
-                    ⚠️ Alertas
-                  </motion.span>
-                </TooltipTrigger>
-                <TooltipContent side="left" className="max-w-xs">
-                  <div className="space-y-1 text-sm">
-                    {compatibility.warnings.map((w, i) => (
-                      <p key={i}>{w}</p>
-                    ))}
-                  </div>
-                </TooltipContent>
-              </Tooltip>
-            )}
-          </div>
+      {/* Row 1: Checkbox + ID + Client + Chevron */}
+      <div className="flex items-center gap-3">
+        <Checkbox
+          checked={isSelected}
+          onCheckedChange={() => onToggleOrder(order.id)}
+          onClick={(e) => e.stopPropagation()}
+          className="h-4 w-4 flex-shrink-0"
+        />
+        <span className="font-mono text-sm font-bold text-foreground">{order.id}</span>
+        <span className="text-sm text-muted-foreground truncate">{order.client}</span>
+        {isPrimary && (
+          <span className="text-xs bg-primary text-primary-foreground px-1.5 py-0.5 rounded ml-1">
+            Principal
+          </span>
         )}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setExpanded(prev => !prev);
+          }}
+          className="ml-auto flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors"
+        >
+          {expanded ? (
+            <ChevronDown className="h-4 w-4" />
+          ) : (
+            <ChevronRight className="h-4 w-4" />
+          )}
+        </button>
       </div>
+
+      {/* Row 2: Labeled columns */}
+      <div className="grid grid-cols-3 gap-4 mt-3 ml-7">
+        <div>
+          <p className="text-xs text-muted-foreground">Lugar de entrega</p>
+          <p className="text-sm font-medium text-foreground">{order.destination}</p>
+        </div>
+        <div>
+          <p className="text-xs text-muted-foreground">Peso</p>
+          <p className="text-sm font-medium text-foreground">{order.weight.toLocaleString()} kg</p>
+        </div>
+        <div>
+          <p className="text-xs text-muted-foreground">Volumen</p>
+          <p className="text-sm font-medium text-foreground">{order.volume?.toFixed(1) || '—'} m³</p>
+        </div>
+      </div>
+
+      {/* Expanded: materials + date */}
+      <AnimatePresence>
+        {expanded && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="mt-3 ml-7 pt-3 border-t space-y-2">
+              <div className="text-xs text-muted-foreground">
+                Fecha de entrega: <span className="text-foreground font-medium">{format(order.deliveryDate, "EEEE d MMM", { locale: es })}</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {order.materials.map((material) => (
+                  <MaterialTag key={material.id} type={material.type} name={material.name} />
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

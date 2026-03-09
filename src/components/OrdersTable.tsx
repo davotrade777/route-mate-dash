@@ -72,7 +72,7 @@ interface OrderCardProps {
   hasPrimary: boolean;
 }
 
-function OrderCard({ order, index, isSelected, isPrimary, sortByCompatibility, onToggleOrder }: OrderCardProps) {
+function OrderCard({ order, index, isSelected, isPrimary, sortByCompatibility, onToggleOrder, compatibility, hasPrimary }: OrderCardProps) {
   const [expanded, setExpanded] = useState(false);
 
   return (
